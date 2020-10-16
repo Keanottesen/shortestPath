@@ -15,23 +15,24 @@ class Router{
                 data.push(chunk)
             })
 
-            // listener when reading data stream is done. 
+            // listener when reading data stream is done.
             req.on('end', () => {
                 if(data.length > 0) {
                     console.log("Data received at router " + self.name);
                     // you need to write your code here.
                     // decipher buffer data hint: look into JSON.parse:
-                    
+                    const response = JSON.parse(data)
+                    res.end(JSON.stringify(response))
                     // end result with res.end(something);
                     // hint: Remember that res.end takes a string. How can we send an object?
-                    // Look in the JSON documentation. 
-                    
+                    // Look in the JSON documentation.
+
                 }
                 else {
                     res.end("No data received");
                 }
             })
-            
+
         })
         this.port = ports.register("router"+this.name);
         this.server.listen(this.port, function() {

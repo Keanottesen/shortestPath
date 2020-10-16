@@ -15,20 +15,24 @@ class Router{
                 data.push(chunk)
             })
 
-            // listener when reading data stream is done. 
+            // listener when reading data stream is done.
             req.on('end', () => {
                 if(data.length > 0) {
                     console.log("Data received at router " + self.name);
-                    // you need to write your code here.
 
+                    // you need to write your code here.
                     // decipher buffer data. Hint: look into JSON.parse();
+                    const response = JSON.parse(data)
 
                     // if path empty, we have reached the destination
-                    if(data.path.length == 0) {
-                        // do something
+                    if(response.path.length == 0) {
+                        console.log(response);
                     } else {
                         // we should forward the packet.
                         // Hint. You can use the shift method on an array to get first element
+                        const firstElement = response.path.shift()
+
+                        self.forwardPacket(firstElement, response)
                         // use the forwardPacket method
                     }
                 }
@@ -36,7 +40,7 @@ class Router{
                     res.end("No data received");
                 }
             })
-            
+
         })
         this.port = ports.register("router"+this.name);
         this.server.listen(this.port, function() {
@@ -53,15 +57,15 @@ class Router{
         })
         return found;
     }
-    
+
     forwardPacket = (to, body) => {
         let sourceRouter = ports.query("router"+to)[0];
         var host = sourceRouter.host.split(":").reverse()[0];
         var port = sourceRouter.port;
         /**
-         * node-fetch is a library to send http-requests. 
+         * node-fetch is a library to send http-requests.
          * In this case, we use it to post / forward the package.
-         * The documentation can be found here: 
+         * The documentation can be found here:
          * https://github.com/node-fetch/node-fetch
          */
         fetch("http://" + host + ":" + port, {

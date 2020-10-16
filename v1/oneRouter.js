@@ -1,6 +1,6 @@
 let data = require("../data.json");
 const Router = require("./router");
-const prompt = require('prompt'); 
+const prompt = require('prompt');
 const seaport = require('seaport');
 const ports = seaport.connect('localhost', 9090);
 const jsgraphs = require('js-graph-algorithms');
@@ -12,6 +12,7 @@ const oneRouter = () => {
     //create a new router based on the data.
     // this is the first router in the data.
     let r = new Router(data.routers[0].router, data.routers[0].router.connections)
+    console.log(r);
     routers.push(r);
     /**
      * since we need to wait until the router is initialized,
@@ -38,9 +39,9 @@ const sendInitialPacket = (to, body) => {
     var host = sourceRouter.host.split(":").reverse()[0];
     var port = sourceRouter.port;
     /**
-     * node-fetch is a library to send http-requests. 
+     * node-fetch is a library to send http-requests.
      * In this case, we use it to post / forward the package.
-     * The documentation can be found here: 
+     * The documentation can be found here:
      * https://github.com/node-fetch/node-fetch
      */
     fetch("http://" + host + ":" + port, {

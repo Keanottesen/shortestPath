@@ -1,6 +1,6 @@
 let data = require("../data.json");
 const Router = require("./routerV2");
-const prompt = require('prompt'); 
+const prompt = require('prompt');
 const seaport = require('seaport');
 const ports = seaport.connect('localhost', 9090);
 const fetch = require('node-fetch');
@@ -9,16 +9,17 @@ let routers = [];
 
 const multipleRouters = () => {
     /**
-     * we iterate through the data and create the routers from it 
+     * we iterate through the data and create the routers from it
      * as well as add it to our array.
      */
-   
+
     data.routers.forEach(router => {
         // initialize router
-
+        let r = new Router(router.router, router.connections)
         // add to array
+        routers.push(r)
     })
-
+    
     /**
      * Prompt is a package to prompt the user though the terminal.
      * Can be found here: https://github.com/flatiron/prompt#readme
@@ -44,9 +45,9 @@ const multipleRouters = () => {
         var host = sourceRouter.host.split(":").reverse()[0];
         var port = sourceRouter.port;
         /**
-         * node-fetch is a library to send http-requests. 
+         * node-fetch is a library to send http-requests.
          * In this case, we use it to post / forward the package.
-         * The documentation can be found here: 
+         * The documentation can be found here:
          * https://github.com/node-fetch/node-fetch
          */
         fetch("http://" + host + ":" + port, {

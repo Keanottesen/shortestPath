@@ -16,53 +16,70 @@ class Router{
                 data.push(chunk)
             })
 
-            // listener when reading data stream is done. 
+            // listener when reading data stream is done.
             req.on('end', () => {
                 if(data.length > 0) {
                     //1. decipher data. hint: JSON.parse()
+                    const response = JSON.parse(data)
 
                     //2. reconstructing packet from data
-                    let packet = new Packet(/* something here */)
-                    
-                    // console.log("Packet " + packet.id + " received at router " + self.name);
+                    let packet = new Packet(response.id, response.source, response.destination, response.ttl, response.routingHistory, response.shortestPath)
+
+
                     if(packet.destination == self.name) {
-                        // 3. What to do if packet has reached destination? 
+                        // 3. What to do if packet has reached destination?
                         // We should end.
+                        const routingHistory = packet.routingHistory
+                        const costs = routingHistory.map(r => r.cost)
+                        const totalCost = costs.reduce((acc, cv) => acc + cv)
+                        const message = `
+                        packet source: router${packet.source}
+                        packet destination: router${packet.destination}
+                        packet reached destination and followed
+                          router${routingHistory[0].to} at cost ${routingHistory[0].cost}. ttl: ${routingHistory[0].ttl}
+                          router${routingHistory.to} at cost ${routingHistory[1].cost}. ttl: ${routingHistory[1].ttl}
+                          router${routingHistory.to} at cost ${routingHistory[2].cost}. ttl: ${routingHistory[2].ttl}
+                        Total cost of: ${totalCost}
+                        `
+                        console.log(message);
+                        process.exit()
                     }
 
-                    // 4. Get which router to forwardTo. 
+                    // 4. Get which router to forwardTo.
                     // Hint: there's a method in packet, that gets the next router.
                     // Hint: should be an int.
-                    let forwardTo /* = packet.somemethod() */
-                    // get the connection object (routeTo). 
+                    let forwardTo = packet.popShortestPath()
+
+                    // get the connection object (routeTo).
                     // consists of a "to" and a "cost".
                     let routeTo = self.getRouteTo(forwardTo);
                     // 5. decrement the packets ttl.
-
+                    packet.ttl--
                     // 6. Add an extra field to routeTo named ttl with same value as the packet's ttl.
                     // remember the object notation of objects in javascript.
+                    routeTo.ttl = packet.ttl
 
                     // 7. Finish the if statement.
-                    if(/* packet ran out of ttl*/n) {
-                        
+                    if(routeTo.ttl == 0) {
                         res.end(JSON.stringify({msg:"packed dropped due to ttl"}))
                         return;
                     }
-                    // console.log("Forwarding to router "+forwardTo+" and inccuring a cost of " + routeTo.cost + ". Total cost: " + packet.getTotalCost());
-                    
+
+
                     // 8. Add the routeTo to the packet's history.
                     // hint: Look at the packet methods.
-
+                    packet.addRouteToHistory(routeTo)
 
                     // 9. forward the packet to the forwardTo variable.
                     // again look at the packet's methods.
+                    packet.forwardPacket(forwardTo)
 
                 }
                 else {
                     res.end("No data received");
                 }
             })
-            
+
         })
         this.port = ports.register("router"+this.name);
         this.server.listen(this.port, function() {
