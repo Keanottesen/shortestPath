@@ -29,19 +29,8 @@ class Router{
                     if(packet.destination == self.name) {
                         // 3. What to do if packet has reached destination?
                         // We should end.
-                        const routingHistory = packet.routingHistory
-                        const costs = routingHistory.map(r => r.cost)
-                        const totalCost = costs.reduce((acc, cv) => acc + cv)
-                        const message = `
-                        packet source: router${packet.source}
-                        packet destination: router${packet.destination}
-                        packet reached destination and followed
-                          router${routingHistory[0].to} at cost ${routingHistory[0].cost}. ttl: ${routingHistory[0].ttl}
-                          router${routingHistory.to} at cost ${routingHistory[1].cost}. ttl: ${routingHistory[1].ttl}
-                          router${routingHistory.to} at cost ${routingHistory[2].cost}. ttl: ${routingHistory[2].ttl}
-                        Total cost of: ${totalCost}
-                        `
-                        console.log(message);
+                        //
+                        packet.prettyPrint()
                         process.exit()
                     }
 
